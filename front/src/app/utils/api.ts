@@ -16,7 +16,8 @@ export const apiPing = async () => {
     });
 };
 
-type User = {
+export type User = {
+  _id: string;
   pseudo: string;
   email: string;
   password: string;
@@ -42,12 +43,13 @@ export const loginUser = async (data: { email: string; password: string }) => {
   }
 };
 
-type Salon = {
+export type Salon = {
   name: string;
   password: string;
   code: string;
   createdBy: User;
   participants: User[];
+  currentUser?: User;
   messages: {
     sender: User;
     content: string;
@@ -85,3 +87,18 @@ export const joinParty = async (data: Partial<Salon>, accessToken: string) => {
     throw error; // Relancer l'erreur pour qu'elle puisse être gérée
   }
 };
+
+
+export const fetchSalon = async (id: string, accessToken: string) => {
+  try {
+    const response = await api.get<Salon>(`/salons/${id}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    return response; // Retourner les données de la réponse
+  } catch (error) {
+    console.error("Erreur lors du chargement du salon :", error);
+    throw error; // Relancer l'erreur pour qu'elle puisse être gérée
+  }
+}

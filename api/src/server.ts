@@ -1,3 +1,4 @@
+const { Server } = require("socket.io");
 import * as dotenv from "dotenv";
 import http from "http";
 import app from "./app";
@@ -47,6 +48,15 @@ const errorHandler = (error: any) => {
 
 const server = http.createServer(app); // create the server
 
+const io = new Server(server);
+
+io.on("connection", (socket: any) => {
+  initSocketEvents(socket, io);
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
+  });
+});
+
 // listeners
 server.on("error", errorHandler);
 server.on("listening", () => {
@@ -56,6 +66,7 @@ server.on("listening", () => {
 });
 
 import "@db/mongodb";
+import { initSocketEvents } from "@utils/socket.events";
 (async () => {
   try {
     server.listen(port);

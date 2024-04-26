@@ -3,6 +3,56 @@ import Salon, { ISalon } from "@models/salon.model";
 import crypto from "crypto";
 import { AuthRequest } from "@middlewares/auth.middleware";
 import { comparePassword, hashPassword } from "@utils/hash";
+import User from "@models/user.model";
+
+export const getSalon = async (req: AuthRequest, res: Response) => {
+  try {
+    const salonId = req.params.id;
+    const userId = req.partialUser?._id;
+
+    // Trouver le salon par son ID
+    const salon = await Salon.findOne({ code: salonId });
+
+    if (!salon) {
+      return res.status(404).send("Salon introuvable");
+    }
+
+    // Vérifier si l'utilisateur a rejoint le salon
+    if (!salon.participants.includes(userId!)) {
+      return res.status(403).send("Vous n'avez pas rejoint ce salon");
+    }
+
+    // Parse participants[] and get only pseudo and id
+    const participants = await User.find({
+      _id: { $in: salon.participants },
+    }).select("pseudo _id");
+    const createdByUser = await User.findOne({ _id: salon.createdBy }).select(
+      "pseudo _id"
+    );
+
+    const currentUser = await User.findOne({
+      _id: req.partialUser?._id,
+    }).select("pseudo _id");
+
+    // Parse messages[].sender into User[]
+    const messages = await User.populate(salon.messages, {
+      path: "sender",
+      select: "pseudo _id",
+    });
+
+    const party = {
+      id: salon._id,
+      name: salon.name,
+      code: salon.code,
+      createdBy: createdByUser,
+    };
+
+    res.status(200).json({ ...party, participants, messages, currentUser });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Erreur serveur");
+  }
+};
 
 export const createSalon = async (req: AuthRequest, res: Response) => {
   try {
@@ -25,7 +75,7 @@ export const createSalon = async (req: AuthRequest, res: Response) => {
     // Enregistrer le nouveau salon dans la base de données
     await newSalon.save();
 
-    res.status(200).send(`Le salon '${name}' a été créé avec l'ID ${randomId}`);
+    res.status(200).json({ code: randomId });
   } catch (error) {
     console.log(error);
     res.status(500).send("Erreur serveur");
@@ -39,7 +89,6 @@ export const joinSalon = async (req: AuthRequest, res: Response) => {
 
     // Trouver le salon par son ID
     const salon = await Salon.findOne({ code: code });
-    console.log("🚀 ~ salon", salon);
 
     // Vérifier si le salon existe
     if (!salon) {
@@ -51,13 +100,10 @@ export const joinSalon = async (req: AuthRequest, res: Response) => {
     }
 
     // Vérifier si l'utilisateur a déjà rejoint le salon
-    if (salon.participants.includes(userId!)) {
-      return res.status(400).send("Vous avez déjà rejoint ce salon");
+    if (!salon.participants.includes(userId!)) {
+      salon.participants.push(userId!);
+      await salon.save();
     }
-
-    // Ajouter l'utilisateur au salon
-    salon.participants.push(userId!);
-    await salon.save();
 
     res.status(200).send(`Vous avez rejoint le salon '${salon.name}'`);
   } catch (error) {
@@ -93,7 +139,7 @@ export const leaveSalon = async (req: AuthRequest, res: Response) => {
     console.error(error);
     res.status(500).send("Erreur serveur");
   }
-}
+};
 
 export const deleteSalon = async (req: AuthRequest, res: Response) => {
   try {
@@ -110,49 +156,15 @@ export const deleteSalon = async (req: AuthRequest, res: Response) => {
 
     // Vérifier si l'utilisateur est le créateur du salon
     if (salon.createdBy !== userId) {
-      return res.status(403).send("Vous n'êtes pas autorisé à supprimer ce salon");
+      return res
+        .status(403)
+        .send("Vous n'êtes pas autorisé à supprimer ce salon");
     }
 
     // Supprimer le salon de la base de données
     await salon.deleteOne();
 
     res.status(200).send(`Le salon '${salon.name}' a été supprimé`);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Erreur serveur");
-  }
-}
-
-
-export const sendMessage = async (req: AuthRequest, res: Response) => {
-  try {
-    const { code, content } = req.body;
-    const senderId = req.partialUser?._id;
-
-    // Trouver le salon par son ID
-    const salon = await Salon.findOne({ code: code });
-
-
-    // Vérifier si le salon existe
-    if (!salon) {
-      return res.status(404).send("Salon introuvable");
-    }
-
-    // Vérifier si l'utilisateur a rejoint le salon
-    if (!salon.participants.includes(senderId ?? "")) {
-      return res.status(403).send("Vous n'avez pas rejoint ce salon");
-    }
-
-    // Vérifier si senderId est défini avant d'ajouter le message
-    if (senderId) {
-      // Ajouter le message au salon
-      salon.messages.push({ sender: senderId, content, timestamp: new Date() });
-      await salon.save();
-      res.status(200).send("Message envoyé avec succès");
-    } else {
-      // Gérer le cas où senderId est undefined
-      return res.status(401).send("Utilisateur non authentifié");
-    }
   } catch (error) {
     console.error(error);
     res.status(500).send("Erreur serveur");

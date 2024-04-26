@@ -3,11 +3,11 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface ISalon extends Document {
   name: string;
   password?: string;
-  id: string; // ID du salon
+  code: string; // ID du salon
   createdBy: string; // ID de l'utilisateur créateur
   participants: string[]; // Tableau d'ID d'utilisateurs participants
   messages: {
-    sender: string; // ID de l'utilisateur expéditeur
+    sender: { type: Schema.Types.ObjectId; ref: "User" };
     content: string;
     timestamp: Date;
   }[];

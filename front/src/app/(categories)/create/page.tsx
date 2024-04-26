@@ -29,7 +29,7 @@ export default function CreateParty() {
         localStorage.getItem("accessToken") ?? ""
       );
       if (response.status === 200) {
-        router.push("/chat");
+        router.push("/chat?partyroomid=" + response.data.code);
       }
     } catch (error) {
       console.error("Erreur lors de l'inscription :", error);

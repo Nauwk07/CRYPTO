@@ -1,9 +1,9 @@
 "use client"; // Directive pour permettre les hooks React
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { joinParty } from "@/app/utils/api";
+import { fetchSalon, joinParty } from "@/app/utils/api";
 
 export default function JoinParty() {
   const router = useRouter();
@@ -29,7 +29,7 @@ export default function JoinParty() {
         localStorage.getItem("accessToken") ?? ""
       );
       if (response.status === 200) {
-        router.push("/chat");
+        router.push("/chat?partyroomid=" + formData.invitationLink);
       }
     } catch (error) {
       console.error("Erreur lors de l'inscription :", error);
