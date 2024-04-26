@@ -2,9 +2,12 @@
 
 import React, { useState } from "react";
 import { Box, Button, TextField, Typography } from "@mui/material";
-import { apiPing } from "@/app/utils/api";
+import { apiPing, createParty } from "@/app/utils/api";
+import { useRouter } from "next/navigation";
 
 export default function CreateParty() {
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     username: "",
     partyName: "",
@@ -15,10 +18,23 @@ export default function CreateParty() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-    apiPing();
-    // Logique pour créer le salon avec les données du formulaire
+    try {
+      const response = await createParty(
+        {
+          name: formData.partyName,
+          password: formData.password,
+        },
+        localStorage.getItem("accessToken") ?? ""
+      );
+      if (response.status === 200) {
+        router.push("/chat");
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'inscription :", error);
+      // Gérer l'erreur ici si nécessaire
+    }
     console.log(formData);
   };
 
@@ -45,15 +61,6 @@ export default function CreateParty() {
           Créer un salon
         </Typography>
         <form onSubmit={handleSubmit}>
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Pseudo"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            variant="outlined"
-          />
           <TextField
             fullWidth
             margin="normal"

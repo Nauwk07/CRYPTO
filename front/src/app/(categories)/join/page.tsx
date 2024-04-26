@@ -1,39 +1,57 @@
 "use client"; // Directive pour permettre les hooks React
 
-import React, { useState } from 'react';
-import { Box, Button, TextField, Typography } from '@mui/material';
+import React, { useState } from "react";
+import { Box, Button, TextField, Typography } from "@mui/material";
+import { useRouter } from "next/navigation";
+import { joinParty } from "@/app/utils/api";
 
 export default function JoinParty() {
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
-    invitationLink: '',
-    username: '',
-    password: '',
+    invitationLink: "",
+    username: "",
+    password: "",
   });
 
   const handleChange = (e: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-    // Logique pour rejoindre le salon avec les données du formulaire
+    try {
+      const response = await joinParty(
+        {
+          code: formData.invitationLink,
+          password: formData.password,
+        },
+        localStorage.getItem("accessToken") ?? ""
+      );
+      if (response.status === 200) {
+        router.push("/chat");
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'inscription :", error);
+      // Gérer l'erreur ici si nécessaire
+    }
     console.log(formData);
   };
 
   return (
     <Box
       sx={{
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
       }}
     >
       <Box
         sx={{
           maxWidth: 400,
-          width: '100%',
+          width: "100%",
           padding: 2,
           boxShadow: 3,
           borderRadius: 2,
@@ -49,15 +67,6 @@ export default function JoinParty() {
             label="Lien d'invitation"
             name="invitationLink"
             value={formData.invitationLink}
-            onChange={handleChange}
-            variant="outlined"
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Pseudo"
-            name="username"
-            value={formData.username}
             onChange={handleChange}
             variant="outlined"
           />

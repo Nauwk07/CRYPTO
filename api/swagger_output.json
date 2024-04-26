@@ -7,7 +7,9 @@
   },
   "host": "localhost:3000",
   "basePath": "/",
-  "schemes": ["http"],
+  "schemes": [
+    "http"
+  ],
   "paths": {
     "/api/ping": {
       "get": {
@@ -30,10 +32,10 @@
               "type": "object",
               "properties": {
                 "email": {
-                  "example": "mathis.buchet@hotmail.fr"
+                  "example": "any"
                 },
                 "password": {
-                  "example": "Test1234"
+                  "example": "any"
                 }
               }
             }
@@ -66,16 +68,13 @@
               "type": "object",
               "properties": {
                 "email": {
-                  "example": "mathis.buchet@hotmail.fr"
+                  "example": "any"
                 },
-                "name": {
-                  "example": "Mathis"
-                },
-                "surname": {
-                  "example": "Buchet"
+                "pseudo": {
+                  "example": "any"
                 },
                 "password": {
-                  "example": "Test1234"
+                  "example": "any"
                 }
               }
             }
@@ -119,253 +118,212 @@
     },
     "/api/salons/create": {
       "post": {
-        "summary": "Crée un nouveau salon de chat",
-        "description": "Cette route permet de créer un nouveau salon de chat en ligne. L'utilisateur doit être authentifié.",
+        "description": "",
         "parameters": [
           {
             "name": "authorization",
             "in": "header",
-            "description": "Token d'accès JWT",
-            "required": true,
             "type": "string"
           },
           {
             "name": "body",
             "in": "body",
-            "description": "Détails du nouveau salon",
-            "required": true,
             "schema": {
-              "$ref": "#/definitions/CreateSalonRequest"
+              "type": "object",
+              "properties": {
+                "name": {
+                  "example": "any"
+                },
+                "password": {
+                  "example": "any"
+                }
+              }
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Salon créé avec succès"
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
           },
           "500": {
-            "description": "Erreur serveur"
+            "description": "Internal Server Error"
           }
         }
       }
     },
     "/api/salons/join": {
       "post": {
-        "summary": "Rejoindre un salon de chat",
-        "description": "Cette route permet à un utilisateur authentifié de rejoindre un salon de chat existant.",
+        "description": "",
         "parameters": [
           {
             "name": "authorization",
             "in": "header",
-            "description": "Token d'accès JWT",
-            "required": true,
             "type": "string"
           },
           {
             "name": "body",
             "in": "body",
-            "description": "Détails du salon à rejoindre",
-            "required": true,
             "schema": {
-              "$ref": "#/definitions/JoinSalonRequest"
+              "type": "object",
+              "properties": {
+                "code": {
+                  "example": "any"
+                },
+                "password": {
+                  "example": "any"
+                }
+              }
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Salon rejoint avec succès"
+            "description": "OK"
           },
           "400": {
-            "description": "Vous avez déjà rejoint ce salon"
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
           },
           "403": {
-            "description": "Mot de passe incorrect"
+            "description": "Forbidden"
           },
           "404": {
-            "description": "Salon introuvable"
+            "description": "Not Found"
           },
           "500": {
-            "description": "Erreur serveur"
+            "description": "Internal Server Error"
           }
         }
       }
     },
     "/api/salons/message": {
       "post": {
-        "summary": "Envoyer un message dans un salon",
-        "description": "Cette route permet à un utilisateur authentifié d'envoyer un message dans un salon de chat qu'il a rejoint.",
+        "description": "",
         "parameters": [
           {
             "name": "authorization",
             "in": "header",
-            "description": "Token d'accès JWT",
-            "required": true,
             "type": "string"
           },
           {
             "name": "body",
             "in": "body",
-            "description": "Détails du message",
-            "required": true,
             "schema": {
-              "$ref": "#/definitions/SendMessageRequest"
+              "type": "object",
+              "properties": {
+                "code": {
+                  "example": "any"
+                },
+                "content": {
+                  "example": "any"
+                }
+              }
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Message envoyé avec succès"
+            "description": "OK"
           },
           "401": {
-            "description": "Utilisateur non authentifié"
+            "description": "Unauthorized"
           },
           "403": {
-            "description": "Vous n'avez pas rejoint ce salon"
+            "description": "Forbidden"
           },
           "404": {
-            "description": "Salon introuvable"
+            "description": "Not Found"
           },
           "500": {
-            "description": "Erreur serveur"
+            "description": "Internal Server Error"
           }
         }
       }
     },
-
     "/api/salons/leave": {
       "post": {
-        "summary": "Quitter un salon de chat",
-        "description": "Cette route permet à un utilisateur authentifié de quitter un salon de chat qu'il a rejoint.",
+        "description": "",
         "parameters": [
           {
             "name": "authorization",
             "in": "header",
-            "description": "Token d'accès JWT",
-            "required": true,
             "type": "string"
           },
           {
             "name": "body",
             "in": "body",
-            "description": "Identifiant du salon à quitter",
-            "required": true,
             "schema": {
-              "$ref": "#/definitions/LeaveSalonRequest"
+              "type": "object",
+              "properties": {
+                "code": {
+                  "example": "any"
+                }
+              }
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Vous avez quitté le salon avec succès"
+            "description": "OK"
           },
-          "400": {
-            "description": "Requête invalide"
-          },
-          "404": {
-            "description": "Salon introuvable"
-          },
-          "500": {
-            "description": "Erreur serveur"
-          }
-        }
-      }
-    },
-
-    "/api/salons/delete": {
-      "delete": {
-        "summary": "Supprimer un salon de chat",
-        "description": "Cette route permet au créateur du salon de le supprimer. L'utilisateur doit être authentifié et doit être le créateur du salon.",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Token d'accès JWT",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Identifiant du salon à supprimer",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/DeleteSalonRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Salon supprimé avec succès"
+          "401": {
+            "description": "Unauthorized"
           },
           "403": {
-            "description": "Non autorisé à supprimer ce salon"
+            "description": "Forbidden"
           },
           "404": {
-            "description": "Salon introuvable"
+            "description": "Not Found"
           },
           "500": {
-            "description": "Erreur serveur"
+            "description": "Internal Server Error"
           }
         }
       }
-    }
-  },
-  "definitions": {
-    "CreateSalonRequest": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "example": "Salon de discussion"
-        },
-        "password": {
-          "type": "string",
-          "example": "motdepasse123"
-        }
-      }
     },
-    "JoinSalonRequest": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "type": "string",
-          "example": "1234567890"
-        },
-        "password": {
-          "type": "string",
-          "example": "motdepasse123"
-        }
-      }
-    },
-    "SendMessageRequest": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "type": "string",
-          "example": "1234567890"
-        },
-        "content": {
-          "type": "string",
-          "example": "Bonjour à tous !"
-        }
-      }
-    },
-
-    "LeaveSalonRequest": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "type": "string",
-          "example": "1234567890"
-        }
-      }
-    },
-    "DeleteSalonRequest": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "type": "string",
-          "example": "1234567890"
+    "/api/salons/delete": {
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
         }
       }
     }

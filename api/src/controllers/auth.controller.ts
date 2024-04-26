@@ -1,7 +1,5 @@
 import { comparePassword, hashPassword } from "@utils/hash";
-import {
-  generateAccessToken
-} from "@utils/token";
+import { generateAccessToken } from "@utils/token";
 import * as dotenv from "dotenv";
 import { Request, Response } from "express";
 dotenv.config();
@@ -21,13 +19,13 @@ export const login = async (req: Request, res: Response) => {
     // Vérifier si l'utilisateur existe
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).send('User not found');
+      return res.status(404).send("User not found");
     }
 
     // Vérifier si le mot de passe est correct
     const isMatch = await comparePassword(reqPassword, user.password);
     if (!isMatch) {
-      return res.status(401).send('Invalid password');
+      return res.status(401).send("Invalid password");
     }
 
     // Générer le token d'accès
@@ -39,7 +37,7 @@ export const login = async (req: Request, res: Response) => {
     res.status(200).send({ accessToken });
   } catch (error) {
     console.log(error);
-    res.status(500).send('Server error');
+    res.status(500).send("Server error");
   }
 };
 
@@ -52,12 +50,12 @@ export const login = async (req: Request, res: Response) => {
 export const register = async (req: Request, res: Response) => {
   try {
     console.log(req.body);
-    const { name, surname, email, password } = req.body;
+    const { pseudo, email, password } = req.body;
 
     // Vérifier si l'utilisateur existe
     const user = await User.findOne({ email });
     if (user) {
-      return res.status(400).send('User already exists');
+      return res.status(400).send("User already exists");
     }
 
     // Hasher le mot de passe
@@ -65,18 +63,16 @@ export const register = async (req: Request, res: Response) => {
 
     // Créer un nouvel utilisateur
     const newUser = new User({
-      name,
-      surname,
+      pseudo,
       email,
       password: hashedPassword,
     });
 
     await newUser.save();
 
-    res.status(200).send('User created');
+    res.status(200).send("User created");
   } catch (error) {
-    res.status(500).send('Server error');
+    res.status(500).send("Server error");
     await User.deleteOne({ email: req.body.email }); // Supprimer l'utilisateur s'il y a une erreur
   }
 };
-  
