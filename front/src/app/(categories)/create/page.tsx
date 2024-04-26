@@ -1,14 +1,14 @@
 "use client"; // Ajoutez cette directive en haut du fichier
 
-
-import React, { useState } from 'react';
-import { Box, Button, TextField, Typography } from '@mui/material';
+import React, { useState } from "react";
+import { Box, Button, TextField, Typography } from "@mui/material";
+import { apiPing } from "@/app/utils/api";
 
 export default function CreateParty() {
   const [formData, setFormData] = useState({
-    username: '',
-    partyName: '',
-    password: '',
+    username: "",
+    partyName: "",
+    password: "",
   });
 
   const handleChange = (e: any) => {
@@ -17,6 +17,7 @@ export default function CreateParty() {
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
+    apiPing();
     // Logique pour créer le salon avec les données du formulaire
     console.log(formData);
   };
@@ -24,17 +25,17 @@ export default function CreateParty() {
   return (
     <Box
       sx={{
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
       }}
     >
       <Box
         sx={{
           maxWidth: 400,
-          width: '100%',
+          width: "100%",
           padding: 2,
           boxShadow: 3,
           borderRadius: 2,

@@ -15,7 +15,7 @@ const normalizePort = (val: string) => {
   }
   return false;
 };
-const port = normalizePort(process.env.API_PORT ?? "3000");
+const port = normalizePort(process.env.API_PORT ?? "8080");
 app.set("port", port);
 
 const errorHandler = (error: any) => {

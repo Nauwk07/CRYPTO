@@ -1,7 +1,4 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/(categories)/chat/page": "app/(categories)/chat/page.js",
-  "/(categories)/(accueil)/page": "app/(categories)/(accueil)/page.js",
-  "/(categories)/create/page": "app/(categories)/create/page.js",
-  "/(categories)/join/page": "app/(categories)/join/page.js"
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/(categories)/(login)/page": "app/(categories)/(login)/page.js"
 }
