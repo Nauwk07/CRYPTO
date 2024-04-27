@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Tooltip, IconButton } from "@mui/material";
+import { ContentCopy as CopyIcon } from "@mui/icons-material";
 import {
   Box,
   Typography,
@@ -11,7 +13,7 @@ import {
   TextField,
 } from "@mui/material";
 import socket, { connectSocket } from "../../utils/socket";
-import { fetchSalon, User } from "@/app/utils/api";
+import {fetchSalon, User, leaveParty, joinParty} from "@/app/utils/api";
 
 export default function Chat() {
   const router = useRouter();
@@ -96,6 +98,22 @@ export default function Chat() {
     }
   };
 
+  const leaveSalon = async () => {
+    try {
+      if (!search) return;
+
+      await leaveParty({ code: search }, localStorage.getItem("accessToken") ?? "");
+
+      // Redirection ou rechargement de la page après avoir quitté le salon
+      router.push("/join");
+
+    } catch (error) {
+      console.error("Erreur lors de la sortie du salon :", error);
+      // Gérer l'erreur ici si nécessaire
+    }
+  };
+
+
   const MessageList = () => {
     return (
       <Box sx={{ flex: 1, overflowY: "auto" }}>
@@ -116,8 +134,8 @@ export default function Chat() {
     <Box sx={{ width: "100%", height: "100%", p: 2 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography variant="h5">{channelName}</Typography>
-        <Button variant="contained" color="primary">
-          Quitter
+        <Button variant="contained" color="secondary" onClick={leaveSalon}>
+            Quitter le salon
         </Button>
       </Box>
 
@@ -172,10 +190,28 @@ export default function Chat() {
         </Box>
       </Box>
 
-      <Box sx={{ mt: 2 }}>
-        <Typography variant="body1">
-          Lien d'invitation: <a href={invitationLink}>{invitationLink}</a>
+      <Box sx={{ mt: 0, display: "flex", alignItems: "center" }}>
+        <Typography variant="body1" sx={{ mr: 1 }}>
+          Lien d'invitation:
         </Typography>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <a
+              href={invitationLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ marginRight: 8 }}
+          >
+            {invitationLink}
+          </a>
+          <Tooltip title="Copier le lien" arrow>
+            <IconButton
+                onClick={() => navigator.clipboard.writeText(invitationLink)}
+                size="small"
+            >
+              <CopyIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Box>
       </Box>
     </Box>
   ) : (

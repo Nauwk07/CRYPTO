@@ -88,6 +88,19 @@ export const joinParty = async (data: Partial<Salon>, accessToken: string) => {
   }
 };
 
+export const leaveParty = async (data: Partial<Salon>, accessToken: string) => {
+    try {
+        const response = await api.post("/salons/leave", data, {
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+        });
+        return response; // Retourner les données de la réponse
+    } catch (error) {
+        console.error("Erreur lors de la sortie du salon :", error);
+        throw error; // Relancer l'erreur pour qu'elle puisse être gérée
+    }
+}
 
 export const fetchSalon = async (id: string, accessToken: string) => {
   try {

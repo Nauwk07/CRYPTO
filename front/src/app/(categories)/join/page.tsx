@@ -18,25 +18,29 @@ export default function JoinParty() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
-    try {
-      const response = await joinParty(
-        {
-          code: formData.invitationLink,
-          password: formData.password,
-        },
-        localStorage.getItem("accessToken") ?? ""
-      );
-      if (response.status === 200) {
-        router.push("/chat?partyroomid=" + formData.invitationLink);
-      }
-    } catch (error) {
-      console.error("Erreur lors de l'inscription :", error);
-      // Gérer l'erreur ici si nécessaire
-    }
-    console.log(formData);
-  };
+    const handleSubmit = async (e: any) => {
+        e.preventDefault();
+        try {
+            const code = formData.invitationLink.includes("partyroomid=")
+                ? formData.invitationLink.split("partyroomid=")[1]
+                : formData.invitationLink;
+
+            const response = await joinParty(
+                {
+                    code,
+                    password: formData.password,
+                },
+                localStorage.getItem("accessToken") ?? ""
+            );
+            if (response.status === 200) {
+                router.push("/chat?partyroomid=" + code);
+            }
+        } catch (error) {
+            console.error("Erreur lors de l'inscription :", error);
+            // Gérer l'erreur ici si nécessaire
+        }
+        console.log(formData);
+    };
 
   return (
     <Box
