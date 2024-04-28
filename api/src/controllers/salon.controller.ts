@@ -95,8 +95,14 @@ export const joinSalon = async (req: AuthRequest, res: Response) => {
       return res.status(404).send("Salon introuvable");
     }
 
+    // Vérifier le mot de passe
     if (salon.password && !(await comparePassword(password, salon.password))) {
       return res.status(403).send("Mot de passe incorrect");
+    }
+
+    // Vérifier si le nombre maximum de participants est atteint
+    if (salon.nbMaxParticipants && salon.participants.length >= salon.nbMaxParticipants) {
+      return res.status(403).send("Le nombre maximum de participants est atteint pour ce salon.");
     }
 
     // Vérifier si l'utilisateur a déjà rejoint le salon
@@ -148,3 +154,19 @@ export const leaveSalon = async (req: AuthRequest, res: Response) => {
     res.status(500).send("Erreur serveur");
   }
 };
+
+export const deleteExpiredSalons = async () => {
+  try {
+    const now = new Date().getTime();
+    const salonsToDelete = await Salon.find({ dateAutoDestruction: { $lte: now } });
+
+    for (const salon of salonsToDelete) {
+
+      await salon.deleteOne();
+      console.log(`Salon ${salon.name} supprimé (ID: ${salon._id})`);
+    }
+  } catch (error) {
+    console.error("Erreur lors de la suppression des salons expirés :", error);
+  }
+};
+

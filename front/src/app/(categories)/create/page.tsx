@@ -1,17 +1,18 @@
-"use client"; // Ajoutez cette directive en haut du fichier
-
+"use client";
 import React, { useState } from "react";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { apiPing, createParty } from "@/app/utils/api";
 import { useRouter } from "next/navigation";
+import { time } from "console";
 
 export default function CreateParty() {
   const router = useRouter();
-
   const [formData, setFormData] = useState({
     username: "",
     partyName: "",
     password: "",
+    deleteDate: "", // Nouveau champ pour la date de suppression
+    nbMaxParticipants: "", // Nouveau champ pour le nombre maximum de participants
   });
 
   const handleChange = (e: any) => {
@@ -21,10 +22,13 @@ export default function CreateParty() {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
+      console.log("Création du salon", new Date(formData.deleteDate).getTime());
       const response = await createParty(
         {
           name: formData.partyName,
           password: formData.password,
+          dateAutoDestruction: new Date(formData.deleteDate).getTime(),
+          nbMaxParticipants: parseInt(formData.nbMaxParticipants),
         },
         localStorage.getItem("accessToken") ?? ""
       );
@@ -33,7 +37,6 @@ export default function CreateParty() {
       }
     } catch (error) {
       console.error("Erreur lors de l'inscription :", error);
-      // Gérer l'erreur ici si nécessaire
     }
     console.log(formData);
   };
@@ -80,13 +83,30 @@ export default function CreateParty() {
             onChange={handleChange}
             variant="outlined"
           />
-          <Button
+          <TextField
             fullWidth
-            variant="contained"
-            color="primary"
-            sx={{ mt: 2 }}
-            type="submit"
-          >
+            margin="normal"
+            label="Date de suppression automatique"
+            name="deleteDate"
+            type="date"
+            value={formData.deleteDate}
+            onChange={handleChange}
+            variant="outlined"
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+          <TextField
+            fullWidth
+            margin="normal"
+            label="Nombre maximum de participants"
+            name="maxParticipants"
+            type="number"
+            value={formData.nbMaxParticipants}
+            onChange={handleChange}
+            variant="outlined"
+          />
+          <Button fullWidth variant="contained" color="primary" sx={{ mt: 2 }} type="submit">
             Créer le salon
           </Button>
         </form>

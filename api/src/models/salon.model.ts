@@ -6,6 +6,8 @@ export interface ISalon extends Document {
   code: string; // ID du salon
   createdBy: string; // ID de l'utilisateur créateur
   participants: string[]; // Tableau d'ID d'utilisateurs participants
+  nbMaxParticipants: number; // Nombre maximum de participants
+  dateAutoDestruction: number; // Date d'auto-destruction du salon
   messages: {
     sender: { type: Schema.Types.ObjectId; ref: "User" };
     content: string;
@@ -19,6 +21,9 @@ const salonSchema = new Schema({
   code: { type: String, required: true },
   createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
   participants: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  nbMaxParticipants: { type: Number },
+  dateAutoDestruction: { type: Number },
+
   messages: [
     {
       sender: { type: Schema.Types.ObjectId, ref: "User", required: true },

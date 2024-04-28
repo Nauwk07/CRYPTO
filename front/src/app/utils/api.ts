@@ -49,6 +49,8 @@ export type Salon = {
   code: string;
   createdBy: User;
   participants: User[];
+  nbMaxParticipants: number;
+  dateAutoDestruction: number;
   currentUser?: User;
   messages: {
     sender: User;

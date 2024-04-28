@@ -3,6 +3,7 @@ import * as dotenv from "dotenv";
 import express from "express";
 import swaggerUi from "swagger-ui-express";
 import swaggerFile from "swagger_output.json";
+import { deleteExpiredSalons } from "./controllers/salon.controller";
 dotenv.config();
 
 const app = express();
@@ -28,6 +29,8 @@ import salonRoutes from "@routes/salon.routes";
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/salons", salonRoutes);
+
+setInterval(deleteExpiredSalons, 24 * 60 * 60 * 1000);
 
 // Swagger
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
