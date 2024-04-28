@@ -1,9 +1,16 @@
 import axios from "axios";
+import bcrypt from 'bcryptjs-react';
 
 const api = axios.create({
   baseURL: "http://localhost:8080/api",
   timeout: 1000,
 });
+
+export const hashPassword = async (password: string): Promise<string> => {
+  const saltRounds = 5; // Nombre de tours de hashage
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+  return hashedPassword;
+};
 
 export const apiPing = async () => {
   api
@@ -17,7 +24,6 @@ export const apiPing = async () => {
 };
 
 export type User = {
-  _id: string;
   pseudo: string;
   email: string;
   password: string;
@@ -25,6 +31,8 @@ export type User = {
 
 export const registerUser = async (data: User) => {
   try {
+    data.password = await hashPassword(data.password);
+    console.log(data);
     const response = await api.post<User>("/auth/register", data);
     return response; // Retourner les données de la réponse
   } catch (error) {
@@ -35,6 +43,7 @@ export const registerUser = async (data: User) => {
 
 export const loginUser = async (data: { email: string; password: string }) => {
   try {
+    console.log(data);
     const response = await api.post("/auth/login", data);
     return response; // Retourner les données de la réponse
   } catch (error) {

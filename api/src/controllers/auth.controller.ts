@@ -1,4 +1,4 @@
-import { comparePassword, hashPassword } from "@utils/hash";
+import{ comparePassword } from "@utils/hash";
 import { generateAccessToken } from "@utils/token";
 import * as dotenv from "dotenv";
 import { Request, Response } from "express";
@@ -14,16 +14,19 @@ import User from "@models/user.model";
  */
 export const login = async (req: Request, res: Response) => {
   try {
-    const { email, password: reqPassword } = req.body;
+    const { email, password: password } = req.body;
 
     // Vérifier si l'utilisateur existe
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).send("User not found");
     }
+    
+    console.log(user);
 
-    // Vérifier si le mot de passe est correct
-    const isMatch = await comparePassword(reqPassword, user.password);
+    // Comparer les mots de passe hachés
+    const isMatch = await comparePassword(password, user.password);
+    console.log(isMatch);
     if (!isMatch) {
       return res.status(401).send("Invalid password");
     }
@@ -58,14 +61,11 @@ export const register = async (req: Request, res: Response) => {
       return res.status(400).send("User already exists");
     }
 
-    // Hasher le mot de passe
-    const hashedPassword = await hashPassword(password);
-
     // Créer un nouvel utilisateur
     const newUser = new User({
       pseudo,
       email,
-      password: hashedPassword,
+      password: password,
     });
 
     await newUser.save();

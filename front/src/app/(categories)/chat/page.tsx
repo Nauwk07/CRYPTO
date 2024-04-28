@@ -4,14 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Tooltip, IconButton } from "@mui/material";
 import { ContentCopy as CopyIcon } from "@mui/icons-material";
-import {
-  Box,
-  Typography,
-  Button,
-  List,
-  ListItem,
-  TextField,
-} from "@mui/material";
+import { Box, Typography, Button, List, ListItem, TextField } from "@mui/material";
 import socket, { connectSocket } from "../../utils/socket";
 import { fetchSalon, User, leaveParty, joinParty } from "@/app/utils/api";
 
@@ -29,11 +22,30 @@ export default function Chat() {
     timestamp: string;
   };
   const [messages, setMessages] = useState<Message[]>([]);
-  const [invitationLink, setInvitationLink] = useState(
-    "https://example.com/invite/placeholder"
-  );
+  const [invitationLink, setInvitationLink] = useState("https://example.com/invite/placeholder");
   const [newMessage, setNewMessage] = useState(""); // Nouveau champ pour stocker le message en cours de saisie
   const [currentUser, setCurrentUser] = useState<User>();
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+
+    if (!accessToken) {
+      // Rediriger vers la page de connexion si l'utilisateur n'est pas connecté
+      router.push("/login");
+    } else {
+      // Vérifier si un code de salon est présent dans l'URL
+      const searchParams = new URLSearchParams(window.location.search);
+      const roomCode = searchParams.get("partyroomid");
+
+      if (roomCode) {
+        // Demander le mot de passe si nécessaire et rejoindre le salon
+        handleJoinRoom(roomCode);
+      } else {
+        // Rediriger vers la page de chat si l'utilisateur est connecté mais qu'aucun salon n'est spécifié
+        router.push("/chat");
+      }
+    }
+  }, []);
 
   useEffect(() => {
     loadSalon();
@@ -57,17 +69,12 @@ export default function Chat() {
     try {
       if (!search) return router.push("/join");
 
-      const response = await fetchSalon(
-        search,
-        localStorage.getItem("accessToken") ?? ""
-      );
+      const response = await fetchSalon(search, localStorage.getItem("accessToken") ?? "");
 
       if (response.status === 200) {
         connectSocket();
         setParticipants(response.data.participants);
-        setInvitationLink(
-          `http://localhost:3000/chat?partyroomid=${response.data.code}`
-        );
+        setInvitationLink(`http://localhost:3000/chat?partyroomid=${response.data.code}`);
         setChannelName(response.data.name);
         setCurrentUser(response.data.currentUser);
         setMessages(
@@ -83,6 +90,33 @@ export default function Chat() {
     } catch (error) {
       console.error("Erreur lors de la récupération du salon :", error);
       // Gérer l'erreur ici si nécessaire
+    }
+  };
+
+  const handleJoinRoom = async (roomCode: any) => {
+    try {
+      const response = await fetchSalon(roomCode, localStorage.getItem("accessToken") ?? "");
+
+      if (response.data.password) {
+        // Demander le mot de passe si nécessaire
+        const password = prompt("Entrez le mot de passe pour rejoindre le salon :");
+
+        if (password) {
+          const joinResponse = await joinParty({ code: roomCode, password }, localStorage.getItem("accessToken") ?? "");
+
+          if (joinResponse.status === 200) {
+            // Rejoindre le salon
+            loadSalon();
+          } else {
+            alert("Mot de passe incorrect");
+          }
+        }
+      } else {
+        // Rejoindre le salon sans mot de passe
+        loadSalon();
+      }
+    } catch (error) {
+      console.error("Erreur lors de la récupération du salon :", error);
     }
   };
 
@@ -102,10 +136,7 @@ export default function Chat() {
     try {
       if (!search) return;
 
-      await leaveParty(
-        { code: search },
-        localStorage.getItem("accessToken") ?? ""
-      );
+      await leaveParty({ code: search }, localStorage.getItem("accessToken") ?? "");
 
       // Redirection ou rechargement de la page après avoir quitté le salon
       router.push("/channel");
@@ -122,9 +153,7 @@ export default function Chat() {
           <Box key={index} sx={{ mb: 2 }}>
             <Typography variant="h6">{message.sender.pseudo}</Typography>
             <Typography variant="body1">{message.content}</Typography>
-            <Typography variant="caption">
-              {new Date(message.timestamp).toLocaleString()}
-            </Typography>
+            <Typography variant="caption">{new Date(message.timestamp).toLocaleString()}</Typography>
           </Box>
         ))}
       </Box>
@@ -146,8 +175,7 @@ export default function Chat() {
           <List>
             {participants.map((participant, index) => (
               <ListItem key={index}>
-                {participant.pseudo}{" "}
-                {currentUser?._id === participant._id && "(Moi)"}
+                {participant.pseudo} {currentUser?._id === participant._id && "(Moi)"}
               </ListItem>
             ))}
           </List>
@@ -179,12 +207,7 @@ export default function Chat() {
                 }
               }}
             />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSendMessage}
-              sx={{ ml: 1 }}
-            >
+            <Button variant="contained" color="primary" onClick={handleSendMessage} sx={{ ml: 1 }}>
               Envoyer
             </Button>
           </Box>
@@ -196,19 +219,11 @@ export default function Chat() {
           Lien d'invitation:
         </Typography>
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <a
-            href={invitationLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ marginRight: 8 }}
-          >
+          <a href={invitationLink} target="_blank" rel="noopener noreferrer" style={{ marginRight: 8 }}>
             {invitationLink}
           </a>
           <Tooltip title="Copier le lien" arrow>
-            <IconButton
-              onClick={() => navigator.clipboard.writeText(invitationLink)}
-              size="small"
-            >
+            <IconButton onClick={() => navigator.clipboard.writeText(invitationLink)} size="small">
               <CopyIcon fontSize="small" />
             </IconButton>
           </Tooltip>

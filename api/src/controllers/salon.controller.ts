@@ -61,12 +61,11 @@ export const createSalon = async (req: AuthRequest, res: Response) => {
 
     // Générer un ID aléatoire de 10 caractères
     const randomId = crypto.randomBytes(5).toString("hex");
-    const hashedPassword = await hashPassword(password);
 
     // Créer un nouvel objet Salon
     const newSalon: ISalon = new Salon({
       name,
-      password: hashedPassword,
+      password: password,
       code: randomId,
       createdBy,
       participants: [createdBy], // Ajouter le créateur comme participant

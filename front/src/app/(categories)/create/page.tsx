@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Box, Button, TextField, Typography } from "@mui/material";
-import { apiPing, createParty } from "@/app/utils/api";
+import { apiPing, createParty, hashPassword } from "@/app/utils/api";
 import { useRouter } from "next/navigation";
 import { time } from "console";
 
@@ -23,10 +23,11 @@ export default function CreateParty() {
     e.preventDefault();
     try {
       console.log("Création du salon", new Date(formData.deleteDate).getTime());
+      const hashedPassword = await hashPassword(formData.password);
       const response = await createParty(
         {
           name: formData.partyName,
-          password: formData.password,
+          password: hashedPassword,
           dateAutoDestruction: new Date(formData.deleteDate).getTime(),
           nbMaxParticipants: parseInt(formData.nbMaxParticipants),
         },
