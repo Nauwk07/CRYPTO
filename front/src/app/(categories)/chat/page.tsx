@@ -13,7 +13,7 @@ import {
   TextField,
 } from "@mui/material";
 import socket, { connectSocket } from "../../utils/socket";
-import {fetchSalon, User, leaveParty, joinParty} from "@/app/utils/api";
+import { fetchSalon, User, leaveParty, joinParty } from "@/app/utils/api";
 
 export default function Chat() {
   const router = useRouter();
@@ -102,17 +102,18 @@ export default function Chat() {
     try {
       if (!search) return;
 
-      await leaveParty({ code: search }, localStorage.getItem("accessToken") ?? "");
+      await leaveParty(
+        { code: search },
+        localStorage.getItem("accessToken") ?? ""
+      );
 
       // Redirection ou rechargement de la page après avoir quitté le salon
-      router.push("/join");
-
+      router.push("/channel");
     } catch (error) {
       console.error("Erreur lors de la sortie du salon :", error);
       // Gérer l'erreur ici si nécessaire
     }
   };
-
 
   const MessageList = () => {
     return (
@@ -135,7 +136,7 @@ export default function Chat() {
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography variant="h5">{channelName}</Typography>
         <Button variant="contained" color="secondary" onClick={leaveSalon}>
-            Quitter le salon
+          Quitter le salon
         </Button>
       </Box>
 
@@ -196,17 +197,17 @@ export default function Chat() {
         </Typography>
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <a
-              href={invitationLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ marginRight: 8 }}
+            href={invitationLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ marginRight: 8 }}
           >
             {invitationLink}
           </a>
           <Tooltip title="Copier le lien" arrow>
             <IconButton
-                onClick={() => navigator.clipboard.writeText(invitationLink)}
-                size="small"
+              onClick={() => navigator.clipboard.writeText(invitationLink)}
+              size="small"
             >
               <CopyIcon fontSize="small" />
             </IconButton>

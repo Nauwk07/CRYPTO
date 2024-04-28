@@ -131,40 +131,18 @@ export const leaveSalon = async (req: AuthRequest, res: Response) => {
     }
 
     // Retirer l'utilisateur du salon
-    salon.participants = salon.participants.filter((id) => id !== userId);
+    salon.participants = salon.participants.filter(
+      (participant) => participant.toString() !== userId
+    );
+
+    if (salon.participants.length === 0) {
+      await salon.deleteOne();
+      return res.status(200).send(`Le salon '${salon.name}' a été supprimé`);
+    }
+
     await salon.save();
 
     res.status(200).send(`Vous avez quitté le salon '${salon.name}'`);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Erreur serveur");
-  }
-};
-
-export const deleteSalon = async (req: AuthRequest, res: Response) => {
-  try {
-    const { code } = req.body;
-    const userId = req.partialUser?._id;
-
-    // Trouver le salon par son ID
-    const salon = await Salon.findOne({ code: code });
-
-    // Vérifier si le salon existe
-    if (!salon) {
-      return res.status(404).send("Salon introuvable");
-    }
-
-    // Vérifier si l'utilisateur est le créateur du salon
-    if (salon.createdBy !== userId) {
-      return res
-        .status(403)
-        .send("Vous n'êtes pas autorisé à supprimer ce salon");
-    }
-
-    // Supprimer le salon de la base de données
-    await salon.deleteOne();
-
-    res.status(200).send(`Le salon '${salon.name}' a été supprimé`);
   } catch (error) {
     console.error(error);
     res.status(500).send("Erreur serveur");
