@@ -1,9 +1,9 @@
-import { Request, Response } from "express";
-import Salon, { ISalon } from "@models/salon.model";
-import crypto from "crypto";
 import { AuthRequest } from "@middlewares/auth.middleware";
-import { comparePassword, hashPassword } from "@utils/hash";
+import Salon, { ISalon } from "@models/salon.model";
 import User from "@models/user.model";
+import { comparePassword, hashPassword } from "@utils/hash";
+import crypto from "crypto";
+import { Response } from "express";
 
 export const getSalon = async (req: AuthRequest, res: Response) => {
   try {
